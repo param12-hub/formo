@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#f5f4ef" />
+<title>FORME — Find your next cut</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --page: light-dark(#f5f4ef, #131513);
+  --surface: light-dark(#fffefa, #1c201d);
+  --surface-2: light-dark(#eeeee7, #252a26);
+  --ink: light-dark(#1e2621, #eff1e9);
+  --muted: light-dark(#6d756f, #a2aaa1);
+  --line: light-dark(#dfdfd5, #343a35);
+  --accent: light-dark(#d7f36b, #d7f36b);
+  --accent-ink: #20271b;
+  --dark: light-dark(#202823, #d8f56d);
+  --shadow: 0 18px 50px rgba(23, 32, 25, .08);
+  --radius: 22px;
+}
+* { box-sizing: border-box; }
+html { background: var(--page); scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--page); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #a9cf43; outline-offset: 2px; }
+.app-root { min-height: 100vh; width: 100%; background: var(--page); border-radius: 0; }
+.topbar { height: 78px; display:flex; align-items:center; justify-content:space-between; gap:24px; padding: 0 clamp(18px, 4.1vw, 62px); border-bottom:1px solid var(--line); background: var(--page); }
+.brand { display:flex; align-items:center; gap:11px; min-width: 170px; }
+.brand-mark { width:34px; height:34px; display:grid; place-items:center; border-radius:11px; background:var(--accent); color:var(--accent-ink); font-weight:900; font-size:20px; letter-spacing:-2px; transform:rotate(-6deg); }
+.brand-name { font-size:18px; font-weight:850; letter-spacing:.17em; line-height:1; }
+.brand-sub { margin-top:5px; color:var(--muted); font-size:9px; font-weight:750; letter-spacing:.14em; }
+.nav-links { display:flex; gap:30px; align-items:center; color:var(--muted); font-size:12px; font-weight:700; }
+.nav-link { border:0; background:none; color:inherit; padding:8px 0; }
+.nav-link.active { color:var(--ink); position:relative; }
+.nav-link.active:after { content:""; position:absolute; height:2px; background:var(--ink); bottom:-12px; left:0; right:0; }
+.top-actions { display:flex; align-items:center; gap:10px; }
+.ghost-btn, .outline-btn, .solid-btn { border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:999px; padding:11px 16px; font-size:12px; font-weight:750; display:inline-flex; align-items:center; gap:9px; justify-content:center; transition:transform .18s, background .18s, border .18s; white-space:nowrap; }
+.ghost-btn:hover, .outline-btn:hover { transform:translateY(-1px); border-color:var(--ink); }
+.solid-btn { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.solid-btn:hover { transform:translateY(-1px); background:#cbe85a; }
+.icon-btn { width:38px; height:38px; border:1px solid var(--line); border-radius:50%; background:var(--surface); color:var(--ink); display:grid; place-items:center; }
+.main { max-width:1600px; margin:0 auto; padding: 36px clamp(18px, 4.1vw, 62px) 60px; }
+.eyebrow { text-transform:uppercase; letter-spacing:.16em; font-size:10px; font-weight:800; color:var(--muted); display:flex; gap:8px; align-items:center; }
+.eyebrow .dot { width:6px; height:6px; border-radius:50%; background:#91b630; display:inline-block; }
+.heading-row { display:flex; justify-content:space-between; align-items:flex-end; gap:22px; margin: 13px 0 23px; }
+h1 { font-size:clamp(35px, 4.2vw, 58px); line-height:.99; letter-spacing:-.065em; margin:0; font-weight:760; max-width:690px; }
+h1 em { font-family: Georgia, "Times New Roman", serif; font-weight:500; }
+.heading-copy { color:var(--muted); line-height:1.65; max-width:275px; font-size:12px; margin:0 0 4px; }
+.searchline { display:flex; align-items:center; gap:12px; margin-bottom:25px; }
+.searchbox { height:48px; display:flex; gap:11px; align-items:center; padding:0 16px; background:var(--surface); border:1px solid var(--line); border-radius:14px; flex:1; min-width:0; max-width:540px; }
+.searchbox svg { color:var(--muted); flex:none; }
+.searchbox input { color:var(--ink); background:transparent; border:0; outline:none; width:100%; min-width:0; font-size:12px; }
+.searchbox input::placeholder { color:var(--muted); }
+.search-hint { border:1px solid var(--line); background:var(--surface-2); color:var(--muted); border-radius:6px; padding:3px 6px; font-size:10px; }
+.search-spacer { flex:1; }
+.filters-label { font-size:10px; color:var(--muted); font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+.gender-row { display:flex; justify-content:space-between; gap:16px; align-items:center; margin:0 0 16px; }
+.gender-tabs, .category-tabs { display:flex; flex-wrap:wrap; gap:7px; }
+.pill { background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:999px; padding:9px 16px; font-size:11px; font-weight:730; transition:all .16s; }
+.pill:hover { color:var(--ink); border-color:var(--ink); }
+.pill.selected { background:var(--ink); border-color:var(--ink); color:var(--page); }
+.pill .count { color:var(--muted); font-weight:600; margin-left:6px; }
+.category-scroll { display:flex; overflow:auto; gap:9px; padding:0 0 8px; scrollbar-width:thin; }
+.category-tabs .pill { padding:8px 13px; }
+.layout-grid { display:grid; grid-template-columns:minmax(0, 1.52fr) minmax(330px, .82fr); gap:18px; align-items:stretch; margin-top:16px; }
+.viewer-card, .detail-card { transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, opacity .25s ease; }
+  .style-card { transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
+  .style-card:hover { transform:translateY(-5px); }
+  .layout-grid { scroll-margin-top:20px; }
+  .similar-section { margin-top:42px; }
+  .viewer-card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; min-width:0; box-shadow:var(--shadow); }
+.viewer-head { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:20px 22px 15px; }
+.viewer-name { font-size:13px; font-weight:820; display:flex; align-items:center; gap:10px; }
+.tiny-tag { border:1px solid var(--line); border-radius:5px; padding:4px 6px; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.1em; font-weight:800; }
+.model-stage { min-height:300px; height:clamp(300px, 34vw, 445px); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background:radial-gradient(ellipse at 50% 42%, light-dark(#f1f1e8,#343931) 0%, light-dark(#e6e8dc,#262d27) 46%, light-dark(#dfe1d5,#202520) 100%); }
+.model-stage:before { content:""; position:absolute; width:min(73%, 430px); aspect-ratio:1; border:1px solid rgba(125,139,110,.22); border-radius:50%; left:50%; top:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 26px rgba(125,139,110,.045), 0 0 0 52px rgba(125,139,110,.035); }
+.model-stage:after { content:""; position:absolute; width:36%; height:9%; bottom:6%; left:32%; border-radius:50%; background:rgba(28,38,27,.17); filter:blur(20px); }
+.men-only-note { display:flex; align-items:center; gap:9px; margin:0 0 20px; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.men-only-dot { width:7px; height:7px; border-radius:50%; background:#8ba83d; }
+#anglePhoto { display:none; position:absolute; inset:0; z-index:1; width:100%; height:100%; object-fit:contain; padding:36px 20px 55px; }
+.photo-fallback { position:absolute; inset:0; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:40px 24px 60px; color:var(--muted); font-size:11px; text-align:center; }
+.fallback-art { width:min(72%,340px); height:85%; overflow:hidden; border-radius:18px; }
+.fallback-art svg, .fallback-art img { width:100%; height:100%; object-fit:contain; }
+.model-file-notice { position:absolute; z-index:4; left:16px; right:16px; bottom:68px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:light-dark(rgba(255,255,255,.88),rgba(20,24,20,.88)); color:var(--ink); font-size:10px; line-height:1.5; text-align:center; backdrop-filter:blur(10px); }
+#headCanvas { width:100%; height:100%; max-width:680px; position:relative; z-index:1; touch-action:pan-y; cursor:grab; }
+#headCanvas:active { cursor:grabbing; }
+.stage-label { position:absolute; z-index:2; left:20px; top:19px; display:flex; align-items:center; gap:8px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em; font-weight:850; font-size:9px; }
+.stage-label span { width:6px; height:6px; background:#8ba83d; border-radius:50%; }
+.stage-controls { display:flex; gap:5px; position:absolute; z-index:3; bottom:15px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,.75); border:1px solid rgba(90,103,80,.22); padding:4px; border-radius:999px; backdrop-filter:blur(15px); box-shadow:0 7px 20px rgba(22,28,20,.08); }
+.stage-controls button { border:0; background:transparent; color:#687166; font-size:10px; font-weight:800; border-radius:999px; padding:8px 13px; }
+.stage-controls button.active { background:#202823; color:#f9f9f1; }
+.rotate-hint { position:absolute; z-index:2; right:19px; top:19px; color:var(--muted); font-size:10px; display:flex; align-items:center; gap:6px; }
+.viewer-bottom { display:flex; justify-content:space-between; align-items:center; gap:12px; border-top:1px solid var(--line); padding:15px 20px; }
+.angle-info { display:flex; align-items:center; gap:10px; min-width:0; }
+.angle-icon { width:33px; height:33px; border-radius:10px; background:var(--surface-2); display:grid; place-items:center; color:var(--muted); flex:none; }
+.angle-info strong { font-size:11px; display:block; }
+.angle-info span { font-size:10px; color:var(--muted); display:block; margin-top:4px; }
+.viewer-actions { display:flex; gap:7px; }
+.viewer-actions .outline-btn, .viewer-actions .solid-btn { padding:10px 13px; font-size:10px; }
+.detail-card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; display:flex; flex-direction:column; min-width:0; }
+.detail-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+.style-index { color:var(--muted); font-size:10px; letter-spacing:.12em; font-weight:850; text-transform:uppercase; }
+h2 { font-size:clamp(26px, 2.6vw, 36px); margin:7px 0 0; letter-spacing:-.055em; line-height:1.04; font-weight:760; }
+.save-btn { background:var(--surface-2); border:1px solid var(--line); border-radius:50%; width:39px; height:39px; display:grid; place-items:center; color:var(--ink); flex:none; }
+.save-btn.saved { background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+.style-description { color:var(--muted); line-height:1.7; font-size:12px; margin:14px 0 18px; }
+.detail-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:21px; }
+.detail-tag { background:var(--surface-2); border-radius:6px; padding:7px 9px; font-size:10px; color:var(--muted); font-weight:700; }
+.detail-tag strong { color:var(--ink); margin-right:3px; }
+.section-divider { height:1px; background:var(--line); margin:1px 0 18px; }
+.detail-section-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:13px; font-size:10px; text-transform:uppercase; letter-spacing:.13em; font-weight:850; }
+.detail-section-title small { color:var(--muted); font-size:9px; letter-spacing:0; text-transform:none; font-weight:600; }
+.spec-row { display:grid; grid-template-columns:1fr 1fr; gap:13px 18px; margin-bottom:20px; }
+.spec { min-width:0; }
+.spec label { font-size:9px; color:var(--muted); display:block; margin-bottom:6px; }
+.spec strong { font-size:11px; font-weight:750; }
+.barber-note { background:var(--surface-2); border-radius:14px; padding:14px; margin-top:auto; }
+.note-head { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:8px; }
+.note-head strong { font-size:11px; }
+.note-head button { border:0; background:none; color:var(--muted); font-size:10px; font-weight:750; }
+.barber-note p { margin:0; line-height:1.62; font-size:11px; color:var(--muted); }
+.share-wide { width:100%; margin-top:12px; padding:14px 16px; border-radius:12px; }
+.library-head { display:flex; justify-content:space-between; gap:20px; align-items:flex-end; margin:42px 0 18px; }
+.library-head h3 { margin:0; font-size:22px; letter-spacing:-.045em; }
+.library-head p { color:var(--muted); margin:6px 0 0; font-size:11px; }
+.result-meta { font-size:11px; color:var(--muted); }
+.card-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:13px; }
+.style-card { background:var(--surface); border:1px solid var(--line); border-radius:17px; overflow:hidden; min-width:0; transition:transform .18s, box-shadow .18s, border-color .18s; cursor:pointer; }
+.style-card:hover { transform:translateY(-3px); box-shadow:var(--shadow); border-color:light-dark(#b6bba9,#5a6555); }
+.style-card.active-card { border-color:light-dark(#8aa933,#d7f36b); box-shadow:0 0 0 1px light-dark(#8aa933,#d7f36b); }
+.card-art { height:180px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; background:var(--art-bg, #e8e9df); }
+.card-art svg { width:100%; height:100%; display:block; }
+.card-badge { position:absolute; top:10px; left:10px; z-index:1; padding:6px 8px; color:#313b2c; background:rgba(255,255,247,.87); border-radius:6px; font-size:9px; font-weight:820; }
+.card-open { position:absolute; top:10px; right:10px; width:28px; height:28px; display:grid; place-items:center; background:rgba(255,255,247,.84); color:#273026; border:0; border-radius:50%; opacity:0; transform:translateY(3px); transition:.18s; }
+.style-card:hover .card-open, .style-card.active-card .card-open { opacity:1; transform:none; }
+.card-content { padding:14px 14px 15px; }
+.card-title-row { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+.card-content h4 { margin:0; font-size:12px; letter-spacing:-.015em; }
+.card-number { color:var(--muted); font-size:9px; font-weight:800; }
+.card-content p { margin:7px 0 12px; color:var(--muted); font-size:10px; line-height:1.45; min-height:29px; }
+.card-foot { padding-top:10px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:8px; align-items:center; }
+.card-foot span { color:var(--muted); font-size:9px; }
+.card-foot strong { font-size:9px; }
+.empty-state { border:1px dashed var(--line); border-radius:16px; padding:40px 20px; text-align:center; color:var(--muted); }
+.empty-state strong { display:block; color:var(--ink); margin-bottom:7px; }
+.footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:28px; margin-top:35px; border-top:1px solid var(--line); color:var(--muted); font-size:10px; }
+.footer strong { color:var(--ink); letter-spacing:.14em; }
+.toast { position:fixed; z-index:100; left:50%; bottom:24px; transform:translate(-50%, 20px); background:var(--ink); color:var(--page); border-radius:999px; padding:12px 18px; font-size:12px; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.24s; max-width:calc(100vw - 32px); text-align:center; }
+.toast.show { opacity:1; transform:translate(-50%, 0); }
+.modal-backdrop { position:fixed; inset:0; z-index:50; background:rgba(11,16,12,.54); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; padding:18px; }
+.modal-backdrop.open { display:flex; }
+.modal { width:min(720px,100%); max-height:min(90vh,850px); overflow:auto; background:var(--surface); border:1px solid var(--line); border-radius:22px; box-shadow:0 32px 100px rgba(0,0,0,.25); }
+.modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:23px 24px 18px; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:2; background:var(--surface); }
+.modal-head h3 { margin:0; font-size:22px; letter-spacing:-.05em; }
+.modal-head p { color:var(--muted); font-size:11px; margin:7px 0 0; line-height:1.5; }
+.modal-body { padding:22px 24px 24px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+.field { display:flex; flex-direction:column; gap:7px; min-width:0; }
+.field.full { grid-column:1/-1; }
+.field label { font-size:10px; font-weight:800; color:var(--muted); }
+.field input, .field select, .field textarea { width:100%; border:1px solid var(--line); color:var(--ink); background:var(--page); border-radius:10px; padding:12px; min-height:42px; outline:none; font-size:12px; }
+.field textarea { resize:vertical; min-height:84px; line-height:1.55; }
+.upload-box { border:1px dashed light-dark(#b9c0ad,#5a6458); background:var(--surface-2); border-radius:12px; padding:15px; }
+.upload-box input { background:transparent; border:0; padding:5px 0; min-height:auto; }
+.upload-help { color:var(--muted); font-size:10px; line-height:1.5; margin:6px 0 0; }
+.upload-list { font-size:10px; color:var(--muted); padding-top:8px; }
+.modal-foot { display:flex; justify-content:space-between; align-items:center; gap:10px; padding-top:18px; margin-top:19px; border-top:1px solid var(--line); }
+.demo-notice { max-width:330px; font-size:10px; color:var(--muted); line-height:1.5; }
+.mobile-nav { display:none; }
+@media (max-width:1150px) {
+  .layout-grid { grid-template-columns:minmax(0, 1.15fr) minmax(300px, .85fr); }
+  .card-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .card-art { height:170px; }
+  .heading-copy { max-width:230px; }
+}
+@media (max-width:900px) {
+  .nav-links { gap:17px; }
+  .layout-grid { grid-template-columns:minmax(0,1fr); }
+  .detail-card { display:grid; grid-template-columns:1fr 1fr; column-gap:22px; }
+  .detail-top, .style-description, .detail-tags, .section-divider, .detail-section-title, .spec-row, .barber-note, .share-wide { grid-column:1/-1; }
+  .detail-card .style-description { max-width:690px; }
+  .spec-row { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .barber-note { margin-top:0; }
+  .card-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:650px) {
+  .topbar { height:66px; padding:0 17px; }
+  .brand { min-width:0; gap:8px; }
+  .brand-mark { width:31px; height:31px; }
+  .brand-name { font-size:16px; }
+  .brand-sub { font-size:8px; }
+  .nav-links { display:none; }
+  .top-actions { gap:7px; }
+  .top-actions .ghost-btn { display:none; }
+  .top-actions .solid-btn { padding:10px 13px; font-size:11px; }
+  .main { padding:28px 16px 38px; }
+  .heading-row { margin:12px 0 19px; align-items:flex-start; flex-direction:column; gap:13px; }
+  h1 { font-size:43px; max-width:520px; }
+  .heading-copy { max-width:420px; }
+  .searchline { gap:8px; margin-bottom:21px; }
+  .searchbox { height:45px; padding:0 12px; }
+  .search-hint, .search-spacer { display:none; }
+  .searchline > .outline-btn { padding:10px 12px; }
+  .gender-row { align-items:flex-start; flex-direction:column; gap:13px; }
+  .gender-tabs { width:100%; }
+  .gender-tabs .pill { flex:1; padding:10px 9px; }
+  .category-tabs { flex-wrap:nowrap; width:max-content; }
+  .category-scroll { margin-right:-16px; padding-right:16px; }
+  .layout-grid { margin-top:10px; gap:11px; }
+  .viewer-head { padding:17px 16px 13px; }
+  .model-stage { height:330px; min-height:280px; }
+  .stage-label { top:14px; left:15px; }
+  .rotate-hint { top:14px; right:13px; font-size:9px; }
+  .stage-controls { bottom:12px; }
+  .stage-controls button { padding:8px 12px; }
+  .viewer-bottom { padding:13px 15px; align-items:flex-start; }
+  .viewer-actions { flex-direction:column; min-width:115px; }
+  .viewer-actions button { width:100%; }
+  .detail-card { display:flex; padding:19px 17px; }
+  .spec-row { grid-template-columns:1fr 1fr; }
+  .barber-note { margin-top:0; }
+  .share-wide { margin-top:10px; }
+  .library-head { margin-top:34px; align-items:flex-start; flex-direction:column; gap:11px; }
+  .library-head h3 { font-size:22px; }
+  .card-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .card-art { height:150px; }
+  .card-content { padding:12px 11px; }
+  .card-content h4 { font-size:11px; }
+  .card-content p { font-size:9px; min-height:27px; }
+  .card-badge { top:8px; left:8px; padding:5px 6px; font-size:8px; }
+  .card-open { top:8px; right:8px; opacity:1; transform:none; width:25px; height:25px; }
+  .footer { align-items:flex-start; flex-direction:column; line-height:1.6; }
+  .form-grid { grid-template-columns:1fr; }
+  .field.full { grid-column:auto; }
+  .modal-head, .modal-body { padding-left:18px; padding-right:18px; }
+  .modal-foot { align-items:flex-start; flex-direction:column; }
+  .demo-notice { max-width:none; }
+}
+@media (prefers-reduced-motion:reduce) { *, *:before, *:after { scroll-behavior:auto !important; transition:none !important; } }
+@keyframes screenEnter { from { opacity:.55; transform:translateY(12px) scale(.995); } to { opacity:1; transform:translateY(0) scale(1); } }
+.screen-enter { animation:screenEnter .42s cubic-bezier(.2,.8,.2,1); }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after {scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;} }
+</style>
+</head>
+<body>
+<div class="app-root" id="appRoot">
+  <header class="topbar">
+    <div class="brand" aria-label="FORME home">
+      <div class="brand-mark">f.</div>
+      <div><div class="brand-name">FORME</div><div class="brand-sub">THE HAIR REFERENCE STUDIO</div></div>
+    </div>
+    <nav class="nav-links" aria-label="Main navigation">
+      <button class="nav-link active" id="navExplore">Explore styles</button>
+      <button class="nav-link" id="navSaved">Saved looks <span id="savedNavCount"></span></button>
+      <button class="nav-link" id="navHow">How it works</button>
+    </nav>
+    <div class="top-actions">
+      <button class="ghost-btn" id="randomBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg> Surprise me</button>
+      <button class="solid-btn" id="adminOpen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Add a style</button>
+    </div>
+  </header>
+
+  <main class="main" id="exploreSection">
+    <div class="eyebrow"><span class="dot"></span> Your cut, before the clippers</div>
+    <div class="heading-row">
+      <h1>Find a look.<br /><em>Make it yours.</em></h1>
+      <p class="heading-copy">Explore cuts from every angle. Save the details, then take a clear reference to your barber or stylist.</p>
+    </div>
+
+    <div class="searchline">
+      <label class="searchbox" aria-label="Search hairstyles">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+        <input type="search" id="searchInput" placeholder="Search any style word: fade, crop, curly, length, barber notes…" autocomplete="off" />
+        <span class="search-hint">⌘ K</span>
+      </label>
+      <div class="search-spacer"></div>
+      <button class="outline-btn" id="resetFilters"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M6 12h12M10 17h4"/></svg> Reset</button>
+    </div>
+
+    <!-- Gender selection is intentionally disabled: FORME currently supports men's hairstyles only. -->
+    <div class="men-only-note"><span class="men-only-dot"></span> MEN'S HAIRSTYLES <span>·</span> A good cut starts with a reference</div>
+    <div class="filters-label">01 / Refine your style</div>
+    <div class="category-scroll"><div class="category-tabs" id="categoryTabs" role="group" aria-label="Filter by haircut type">
+      <button class="pill selected" data-category="all">All styles</button>
+      <button class="pill" data-category="fade">Fades & tapers</button>
+      <button class="pill" data-category="texture">Textured</button>
+      <button class="pill" data-category="classic">Classic</button>
+      <button class="pill" data-category="long">Long hair</button>
+      <button class="pill" data-category="curly">Curly & coils</button>
+      <button class="pill" data-category="short">Short cuts</button>
+    </div></div>
+
+    <section class="layout-grid" aria-label="Selected hairstyle and details">
+      <div class="viewer-card">
+        <div class="viewer-head">
+          <div class="viewer-name"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"/></svg> Style preview <span class="tiny-tag">Interactive</span></div>
+          <button class="icon-btn" id="rotateReset" aria-label="Reset model angle" title="Reset angle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg></button>
+        </div>
+        <div class="model-stage">
+          <div class="stage-label"><span></span> <span id="stageModeLabel">Reference photo</span></div>
+          <div class="rotate-hint" id="rotateHint" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 12V5a2 2 0 0 1 4 0v6-3a2 2 0 0 1 4 0v4-2a2 2 0 0 1 4 0v5c0 4-3 7-7 7h-1c-2 0-4-1-5-3l-3-4a2 2 0 0 1 3-3l2 2"/></svg> Drag to rotate</div>
+          <img id="anglePhoto" alt="Hairstyle reference angle" />
+          <div id="photoFallback" class="photo-fallback"><div class="fallback-art" id="fallbackArt"></div><span>Admin can add front, side and back reference photos</span></div>
+          <div id="modelFileNotice" class="model-file-notice" hidden></div>
+          <canvas id="headCanvas" aria-label="3D hairstyle preview"></canvas>
+          <div class="stage-controls" id="angleControls">
+            <button data-angle="front" class="active">Front</button><button data-angle="side">Side</button><button data-angle="back">Back</button><button data-angle="3d">3D view</button>
+          </div>
+        </div>
+        <div class="viewer-bottom">
+          <div class="angle-info"><div class="angle-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2M16 3h5v5"/></svg></div><div><strong id="angleTitle">Front view</strong><span id="angleCaption">See the shape and fringe</span></div></div>
+          <div class="viewer-actions"><button class="outline-btn" id="viewPhotos"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></svg> Photos</button></div>
+        </div>
+      </div>
+
+      <aside class="detail-card" id="detailCard">
+        <div class="detail-top">
+          <div><div class="style-index" id="styleIndex">SELECTED STYLE / 01</div><h2 id="selectedName">Textured Crop</h2></div>
+          <button class="save-btn" id="saveBtn" title="Save look" aria-label="Save look"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg></button>
+        </div>
+        <p class="style-description" id="selectedDescription">A clean, modern crop with broken-up texture on top and a close, blended finish around the sides. Easy to style and sharp without looking overdone.</p>
+        <div class="detail-tags" id="detailTags"><span class="detail-tag"><strong>Vibe</strong> Modern</span><span class="detail-tag"><strong>Effort</strong> Low</span><span class="detail-tag"><strong>Works on</strong> Straight / wavy</span></div>
+        <div class="section-divider"></div>
+        <div class="detail-section-title">Barber notes <small>Take these with you</small></div>
+        <div class="spec-row" id="specGrid">
+          <div class="spec"><label>SIDES</label><strong>Low skin fade</strong></div><div class="spec"><label>TOP LENGTH</label><strong>4–6 cm</strong></div><div class="spec"><label>FINISH</label><strong>Matte, textured</strong></div>
+        </div>
+        <div class="barber-note"><div class="note-head"><strong>Say it like this</strong><button id="copyNotes">Copy notes ↗</button></div><p id="barberScript">“A textured crop with a low skin fade. Keep around 4–6 cm on top, add choppy texture, and blend the sides smoothly. Finish natural and matte.”</p></div>
+      </aside>
+    </section>
+
+    <section id="librarySection">
+      <div class="library-head"><div><div class="eyebrow" style="margin-bottom:10px"><span class="dot"></span> Curated cut library</div><h3 id="libraryTitle">Popular right now</h3><p>Choose a style to compare angles and get the exact details.</p></div><div class="result-meta" id="resultMeta">12 styles to explore</div></div>
+      <div class="card-grid" id="styleGrid"></div>
+      <div class="empty-state" id="emptyState" hidden><strong>No cuts found just yet.</strong>Try a different keyword or clear the filters.</div>
+    </section>
+    <section id="similarSection" class="similar-section">
+      <div class="library-head"><div><div class="eyebrow" style="margin-bottom:10px"><span class="dot"></span> Keep exploring</div><h3>Similar styles</h3><p>More looks with a similar shape and feel.</p></div></div>
+      <div class="card-grid" id="similarGrid"></div>
+    </section>
+
+    <footer class="footer"><div><strong>FORME.</strong> A clearer conversation in the barber's chair.</div><div>Browse without an account · Built for every screen</div></footer>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal-backdrop" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <div class="modal">
+    <div class="modal-head"><div><div class="eyebrow" style="margin-bottom:9px"><span class="dot"></span> Library management</div><h3 id="adminTitle">Add a hairstyle</h3><p>Upload front / side / back photos, add barber instructions, and attach the 3D model used in the 3D view.</p></div><button class="icon-btn" id="adminClose" aria-label="Close upload form"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <form class="modal-body" id="styleForm">
+      <div class="form-grid">
+        <div class="field"><label for="formName">STYLE NAME *</label><input id="formName" name="name" required placeholder="e.g. Soft taper with curls" /></div>
+        <div class="field"><label for="formCategory">STYLE TYPE *</label><select id="formCategory" name="category"><option value="fade">Fades & tapers</option><option value="texture">Textured</option><option value="classic">Classic</option><option value="long">Long hair</option><option value="curly">Curly & coils</option><option value="short">Short cuts</option></select></div>
+        <div class="field"><label for="formTexture">HAIR TEXTURE</label><input id="formTexture" name="texture" placeholder="e.g. Wavy, thick" /></div>
+        <div class="field"><label for="formSides">SIDES / FADE</label><input id="formSides" name="sides" placeholder="e.g. Mid taper" /></div>
+        <div class="field"><label for="formLength">TOP / LENGTH</label><input id="formLength" name="length" placeholder="e.g. 7–9 cm" /></div>
+        <div class="field"><label for="formFinish">FINISH</label><input id="formFinish" name="finish" placeholder="e.g. Natural matte" /></div>
+        <div class="field"><label for="formUpkeep">MAINTENANCE</label><input id="formUpkeep" name="upkeep" placeholder="e.g. Every 4 weeks" /></div>
+        <div class="field full"><label for="formDescription">DESCRIPTION *</label><textarea id="formDescription" name="description" required placeholder="Describe the shape, styling, who it works for, and the overall look…"></textarea></div>
+        <div class="field full"><label for="formBarber">BARBER INSTRUCTIONS *</label><textarea id="formBarber" name="barber" required placeholder="Exact instructions a customer can show to their barber…"></textarea></div>
+        <div class="field"><label>REFERENCE PHOTOS (FRONT / SIDE / BACK IN ORDER)</label><div class="upload-box"><input id="formPhotos" type="file" accept="image/*" multiple /><p class="upload-help">Upload images in this order: front, side, back. JPG, PNG or WEBP.</p><div class="upload-list" id="photoList">No photos selected</div></div></div>
+        <div class="field"><label>3D MODEL FILE</label><div class="upload-box"><input id="formModel" type="file" accept=".glb,.gltf,.obj,.stl,model/gltf-binary,model/gltf+json" /><p class="upload-help">Attach the separate 3D model file for the 3D view (GLB, GLTF, OBJ or STL).</p><div class="upload-list" id="modelList">No model selected</div></div></div>
+      </div>
+      <div class="modal-foot"><div class="demo-notice">Prototype: photos are used for the front / side / back views. The uploaded 3D file is recorded separately; a 3D engine is needed to render its geometry.</div><div style="display:flex;gap:8px"><button type="button" class="outline-btn" id="cancelUpload">Cancel</button><button type="submit" class="solid-btn">Add to library ↗</button></div></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="barberModal" role="dialog" aria-modal="true" aria-labelledby="barberTitle">
+  <div class="modal">
+    <div class="modal-head"><div><div class="eyebrow" style="margin-bottom:9px"><span class="dot"></span> Your barber reference</div><h3 id="barberTitle">Take the details with you.</h3><p>One clear style brief to show your barber or stylist. No account needed.</p></div><button class="icon-btn" id="barberClose" aria-label="Close barber reference"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div class="modal-body" id="barberReferenceContent"></div>
+  </div>
+</div>
+<script>
+(() => {
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const defaultStyles = [
+    {id:'crop',name:'Textured Crop',gender:'men',category:'texture',badge:'MOST LOVED',desc:'A clean, modern crop with broken-up texture on top and a close, blended finish around the sides.',vibe:'Modern',effort:'Low',works:'Straight / wavy',sides:'Low skin fade',length:'4–6 cm',finish:'Matte, textured',upkeep:'Every 3–4 weeks',barber:'A textured crop with a low skin fade. Keep around 4–6 cm on top, add choppy texture, and blend the sides smoothly. Finish natural and matte.',texture:'Straight / wavy',palette:'#dfe8d2',hair:'#2c302b',kind:'crop',rank:'01'},
+    {id:'lowfade',name:'Low Taper Fade',gender:'men',category:'fade',badge:'CLEAN FINISH',desc:'A subtle taper around the sideburns and neckline, keeping the overall shape neat but not too severe.',vibe:'Sharp',effort:'Low',works:'Most textures',sides:'Low taper',length:'5–7 cm',finish:'Natural',upkeep:'Every 3–4 weeks',barber:'Give me a low taper around the sideburns and neckline. Keep the blend soft, leave enough length on top to style naturally, and keep the edges clean.',texture:'All textures',palette:'#e8e1d4',hair:'#352f2a',kind:'fade',rank:'02'},
+    {id:'quiff',name:'Modern Quiff',gender:'men',category:'classic',badge:'TIMELESS',desc:'Volume at the front, a tidy silhouette and softly tapered sides. A versatile cut with a little more presence.',vibe:'Polished',effort:'Medium',works:'Straight / wavy',sides:'Mid taper',length:'7–10 cm',finish:'Soft hold',upkeep:'Every 4 weeks',barber:'Leave extra length at the front for a modern quiff, with 7–10 cm on top and a soft mid taper on the sides. Keep it textured rather than stiff.',texture:'Straight / wavy',palette:'#e8ded3',hair:'#292b28',kind:'quiff',rank:'03'},
+    {id:'curly',name:'Curly Top Fade',gender:'men',category:'curly',badge:'TEXTURE FIRST',desc:'Let natural curls do the talking. A sculpted top balances clean sides and keeps the curl pattern in focus.',vibe:'Expressive',effort:'Medium',works:'Curly / coily',sides:'Mid skin fade',length:'Keep curl length',finish:'Defined curls',upkeep:'Every 3 weeks',barber:'Keep my curl pattern and shape the top without taking away too much length. Blend into a mid skin fade and clean the neckline. Please avoid thinning out the curls.',texture:'Curly / coily',palette:'#dce3dd',hair:'#242521',kind:'curly',rank:'04'},
+    {id:'buzz',name:'Buzz Cut',gender:'men',category:'short',badge:'LOW MAINTENANCE',desc:'Minimal, confident and easy to maintain. The close-cropped finish puts the focus on natural features.',vibe:'Minimal',effort:'Very low',works:'Most textures',sides:'Even / soft fade',length:'3–6 mm',finish:'Close crop',upkeep:'Every 2–3 weeks',barber:'I want a clean buzz cut. Please confirm the guard length before starting, blend the sides if needed, and keep the hairline natural rather than pushing it too far back.',texture:'Most textures',palette:'#e4e5d9',hair:'#302f2b',kind:'buzz',rank:'05'},
+    {id:'slick',name:'Slick Back',gender:'men',category:'classic',badge:'SMART & SLEEK',desc:'Longer top brushed back into a smooth shape with controlled sides. Classic without feeling dated.',vibe:'Refined',effort:'Medium',works:'Straight / wavy',sides:'Scissor taper',length:'9–12 cm',finish:'Natural shine',upkeep:'Every 4–5 weeks',barber:'Keep the top around 9–12 cm so it can sweep back. Use a scissor taper at the sides rather than an extreme undercut; keep enough weight for a natural flow.',texture:'Straight / wavy',palette:'#e9ded0',hair:'#322a25',kind:'slick',rank:'06'},
+    {id:'bob',name:'Soft French Bob',gender:'women',category:'long',badge:'EDITOR PICK',desc:'A softly curved bob with airy ends and face-framing shape. Elegant, easy and a little undone.',vibe:'Effortless',effort:'Medium',works:'Straight / wavy',sides:'Rounded outline',length:'Jaw to chin',finish:'Airy ends',upkeep:'Every 6–8 weeks',barber:'A soft French bob around jaw-to-chin length with a slightly rounded silhouette and light, airy ends. Keep it face-framing, not blunt or boxy, and add a soft fringe if it suits the consultation.',texture:'Straight / wavy',palette:'#e7ddd7',hair:'#4b3029',kind:'bob',rank:'07'},
+    {id:'pixie',name:'Textured Pixie',gender:'women',category:'short',badge:'BOLD & LIGHT',desc:'Short, piecey layers add movement and shape while keeping the sides and nape neat.',vibe:'Creative',effort:'Low',works:'Straight / wavy',sides:'Tapered nape',length:'Short layers',finish:'Piecey texture',upkeep:'Every 4–6 weeks',barber:'A textured pixie with light, piecey layers on top, soft tapered sides and a neat nape. Keep some movement around the fringe and avoid making the shape too severe.',texture:'Straight / wavy',palette:'#dfdfd3',hair:'#49352e',kind:'pixie',rank:'08'},
+    {id:'layers',name:'Long Layers',gender:'women',category:'long',badge:'SOFT MOVEMENT',desc:'Long, flowing layers remove heaviness and frame the face while keeping the length and movement.',vibe:'Soft',effort:'Medium',works:'Straight / wavy / curly',sides:'Face-framing',length:'Keep overall length',finish:'Flowing layers',upkeep:'Every 8–12 weeks',barber:'Keep my overall length. Add long, blended layers with soft face-framing pieces starting around the cheekbone or jaw, and make sure the layers connect naturally.',texture:'All textures',palette:'#e7e0d3',hair:'#5c3c2e',kind:'long',rank:'09'},
+    {id:'wolf',name:'Modern Wolf Cut',gender:'unisex',category:'texture',badge:'CREATIVE CUT',desc:'Shaggy layers, face framing and lived-in texture create a relaxed silhouette with plenty of movement.',vibe:'Alternative',effort:'Medium',works:'Wavy / straight',sides:'Layered & shaggy',length:'Medium to long',finish:'Air-dried texture',upkeep:'Every 6–8 weeks',barber:'A modern wolf cut with layered volume at the crown, soft curtain-like face-framing pieces and textured ends. Keep the movement connected and avoid a harsh shelf between layers.',texture:'Wavy / straight',palette:'#e4dcd5',hair:'#48322b',kind:'wolf',rank:'10'},
+    {id:'waves',name:'Defined Waves',gender:'men',category:'curly',badge:'NATURAL TEXTURE',desc:'A wave-friendly shape with enough length to define the pattern and a neat outline around the edges.',vibe:'Natural',effort:'Medium',works:'Wavy / curly',sides:'Low taper',length:'6–8 cm',finish:'Defined waves',upkeep:'Every 3–4 weeks',barber:'Keep enough length for my waves to form naturally, shape the top without flattening it, and use a low taper around the edges. Keep the outline clean but not too high.',texture:'Wavy / curly',palette:'#dce3da',hair:'#272b26',kind:'waves',rank:'11'},
+    {id:'shag',name:'Soft Shag',gender:'women',category:'long',badge:'EASY MOVEMENT',desc:'Layered, relaxed and full of movement, with a soft fringe and ends that fall naturally around the face.',vibe:'Relaxed',effort:'Medium',works:'Straight / wavy',sides:'Connected layers',length:'Shoulder length+',finish:'Airy texture',upkeep:'Every 6–8 weeks',barber:'I want a soft shag with connected layers, light texture around the crown and a fringe that blends into face-framing pieces. Keep the ends relaxed and avoid over-thinning.',texture:'Straight / wavy',palette:'#e9ded4',hair:'#714a35',kind:'shag',rank:'12'}
+  ];
+  let styles = [...defaultStyles];
+  let currentGender='men', currentCategory='all', query='', activeId='crop', viewAngle='front', yaw=0, pitch=0, savedIds=new Set();
+  let uploadedPhotos=[], uploadedPhotoData=[], uploadedModel=null;
+  try { savedIds = new Set(JSON.parse(localStorage.getItem('forme-saved')||'[]')); } catch(e) {}
+  const customStylesKey='forme-custom-styles-v1';
+  try { const custom=JSON.parse(localStorage.getItem(customStylesKey)||'[]'); styles.push(...custom); } catch(e) {}
+  styles = styles.filter(s => s.gender === 'men');
+  if (!styles.some(s => s.id === activeId)) activeId = styles[0]?.id || 'crop';
+  const activeStyle = () => styles.find(s=>s.id===activeId) || styles[0];
+  const toastEl=$('#toast'); let toastTimer;
+  function toast(message){ toastEl.textContent=message; toastEl.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2600); }
+  function setActive(id){ if (!styles.some(s=>s.id===id)) return; activeId=id; yaw=0; pitch=0; viewAngle='front'; const viewer=$('.layout-grid'); viewer.classList.remove('screen-enter'); void viewer.offsetWidth; viewer.classList.add('screen-enter'); updateDetails(); updateAngleButtons(); renderCanvas(); renderCards(); renderSimilar(); viewer.scrollIntoView({behavior:'smooth',block:'start'}); }
+  function currentList(){
+    const normalize = value => String(value ?? '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const terms = normalize(query).split(/\s+/).filter(Boolean);
+    return styles.filter(s => {
+      if (s.gender !== 'men' || (currentCategory !== 'all' && s.category !== currentCategory)) return false;
+      if (!terms.length) return true;
+      // Search every meaningful style field, not just the title: description, barber instructions,
+      // cut type, texture, fade/taper details, length, finish, maintenance, tags and uploaded filenames.
+      const searchable = normalize([
+        s.name, s.desc, s.barber, s.texture, s.vibe, s.category, s.sides, s.length,
+        s.finish, s.upkeep, s.badge, s.works, s.kind, s.rank,
+        ...(Array.isArray(s.photoNames) ? s.photoNames : []), s.modelFile,
+        'mens men haircut hairstyle hair cut barber fade taper low mid high skin bald drop burst temple undercut crop french crop crew cut buzz cut quiff pompadour slick back side part comb over textured fringe messy spiky curly wavy straight thick thin short medium long classic modern professional casual formal natural clean sharp layered volume scissor clipper'
+      ].join(' '));
+      return terms.every(term => searchable.includes(term));
+    });
+  }
+  function renderFilters(){
+    $$('#categoryTabs [data-category]').forEach(b=>b.classList.toggle('selected',b.dataset.category===currentCategory));
+  }
+  function svgCard(s){
+    const skin=s.gender==='women'?'#d8a17e':'#c9906d';
+    const hair=s.hair||'#302b27';
+    const bob=s.kind==='bob', long=['long','shag','wolf'].includes(s.kind), pixie=s.kind==='pixie', curls=s.kind==='curly'||s.kind==='waves';
+    let top='';
+    if(s.kind==='buzz') top='<path d="M68 91 Q67 36 110 31 Q153 33 152 91 L145 75 Q110 51 76 77Z" fill="'+hair+'"/>';
+    else if(s.kind==='quiff') top='<path d="M66 91 Q57 51 86 36 Q110 17 140 36 Q153 47 152 89 L144 65 Q123 56 100 68 L82 78Z" fill="'+hair+'"/>';
+    else if(s.kind==='slick') top='<path d="M65 87 Q58 40 93 29 Q128 18 153 47 L153 87 Q141 57 118 51 L81 67Z" fill="'+hair+'"/>';
+    else if(s.kind==='curly'||s.kind==='waves') top='<path d="M65 91 Q55 56 72 42 Q76 20 95 31 Q105 10 123 28 Q140 15 151 40 Q161 59 151 91 L142 75 L80 77Z" fill="'+hair+'"/><g fill="none" stroke="#78776a" stroke-width="2" opacity=".45"><path d="M77 51q8-11 14 0t14 0t14 0t14 0M78 62q7-10 14 0t14 0t14 0t14 0"/></g>';
+    else if(s.kind==='bob') top='<path d="M60 103 Q48 45 82 29 Q113 12 141 34 Q165 57 156 119 L143 140 L131 111 L78 111 L70 139Z" fill="'+hair+'"/><path d="M73 64 Q104 79 147 60" fill="none" stroke="#906a52" stroke-width="3" opacity=".3"/>';
+    else if(s.kind==='long'||s.kind==='shag'||s.kind==='wolf') top='<path d="M59 103 Q48 44 84 28 Q114 9 142 35 Q166 59 155 132 L143 173 L132 119 L80 115 L69 169Z" fill="'+hair+'"/><path d="M78 108q-7 23-4 42M139 108q9 28 5 48" fill="none" stroke="#9b6c4e" stroke-width="3" opacity=".4"/>';
+    else if(s.kind==='pixie') top='<path d="M65 93 Q57 48 89 33 Q121 17 147 42 L151 86 L137 71 L113 61 L86 78 L76 91Z" fill="'+hair+'"/>';
+    else top='<path d="M64 91 Q59 45 87 31 Q118 15 143 35 Q158 53 151 89 L140 70 Q119 62 99 73 L81 78Z" fill="'+hair+'"/><path d="M80 74 Q106 84 143 71" fill="none" stroke="#8f7359" stroke-width="2" opacity=".35"/>';
+    if (s.kind==='crop') top+='<path d="M69 82 L71 60 Q91 50 107 61 L124 52 L149 67 L145 83 Q119 74 98 83Z" fill="'+hair+'"/>';
+    if(s.kind==='bob') top+='<path d="M78 50 Q106 18 141 49 L144 69 Q120 61 100 75 L78 69Z" fill="'+hair+'"/>';
+    const hairback=(long||bob||pixie)?`<path d="M65 78 Q51 113 63 ${long?172:135} L78 ${long?186:141} L82 113Z M146 78 Q161 114 151 ${long?175:133} L138 ${long?187:141} L135 112Z" fill="${hair}"/>`:'';
+    return `<svg viewBox="0 0 220 210" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg${s.id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${s.palette||'#e5e6db'}"/><stop offset="1" stop-color="#cfd7c6"/></linearGradient><linearGradient id="skin${s.id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#edc09a"/><stop offset="1" stop-color="${skin}"/></linearGradient></defs><rect width="220" height="210" fill="url(#bg${s.id})"/><circle cx="178" cy="37" r="54" fill="#ffffff" opacity=".18"/><ellipse cx="110" cy="198" rx="54" ry="13" fill="#65705b" opacity=".13"/><path d="M54 210 Q61 169 84 163 L139 163 Q161 173 168 210Z" fill="#747f6c"/><path d="M89 148 L89 172 Q111 188 132 171 L131 146Z" fill="url(#skin${s.id})"/><path d="M76 75 Q77 40 109 37 Q145 39 146 77 L141 120 Q133 149 110 153 Q85 149 77 120Z" fill="url(#skin${s.id})"/><path d="M77 87 Q62 81 68 101 Q70 113 79 111 M145 87 Q160 81 154 101 Q152 113 143 111" fill="${skin}"/><path d="M89 94 Q98 88 103 94 M118 94 Q127 88 133 94" stroke="#4c3b32" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M110 99 L105 114 Q109 118 114 114" stroke="#a86e51" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M99 129 Q110 135 122 128" stroke="#9f5e53" stroke-width="2" fill="none" stroke-linecap="round"/>${hairback}${top}<path d="M82 149 Q109 159 137 147" fill="none" stroke="#b67f62" stroke-width="1.4" opacity=".28"/><path d="M83 166 L110 188 L137 166" fill="none" stroke="#f0eee3" stroke-width="1.2" opacity=".35"/></svg>`;
+  }
+  function styleArtwork(s){
+    if(s.photoData && s.photoData.length){ return `<img src="${esc(s.photoData[0])}" alt="${esc(s.name)} hairstyle reference" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy" />`; }
+    return svgCard(s);
+  }
+  function renderCards(){
+    const list=currentList();
+    $('#styleGrid').innerHTML=list.map((s,i)=>`<article class="style-card ${s.id===activeId?'active-card':''}" data-style-id="${esc(s.id)}" tabindex="0" role="button" aria-label="Explore ${esc(s.name)}"><div class="card-art" style="--art-bg:${esc(s.palette||'#e8e8dc')}"><span class="card-badge">${esc(s.badge||'NEW STYLE')}</span>${styleArtwork(s)}<button class="card-open" aria-label="Open ${esc(s.name)}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></button></div><div class="card-content"><div class="card-title-row"><h4>${esc(s.name)}</h4><span class="card-number">${esc(s.rank||String(i+1).padStart(2,'0'))}</span></div><p>${esc(s.desc)}</p><div class="card-foot"><span>${esc(s.texture||'All textures')}</span><strong>${esc(s.upkeep||'—')}</strong></div></div></article>`).join('');
+    $('#emptyState').hidden=list.length>0; $('#styleGrid').hidden=list.length===0;
+    $('#resultMeta').textContent=`${list.length} style${list.length===1?'':'s'} to explore`;
+    $('#libraryTitle').textContent=currentGender==='all'&&currentCategory==='all'&&!query?'Popular right now':'Explore styles';
+    $$('#styleGrid .style-card').forEach(card=>{
+      card.addEventListener('click',e=>{ if(e.target.closest('.card-open')||!e.target.closest('button')) setActive(card.dataset.styleId); });
+      card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setActive(card.dataset.styleId);}});
+    });
+    $('#savedNavCount').textContent=savedIds.size?`(${savedIds.size})`:'';
+  }
+  function renderSimilar(){
+    const active=activeStyle();
+    const pool=styles.filter(s=>s.id!==active.id).sort((a,b)=>{const score=s=>((s.category===active.category)?3:0)+((s.kind===active.kind)?2:0)+((s.gender===active.gender)?1:0);return score(b)-score(a);}).slice(0,4);
+    const grid=$('#similarGrid'); if(!grid)return;
+    grid.innerHTML=pool.map((s,i)=>`<article class="style-card" data-style-id="${esc(s.id)}" tabindex="0" role="button" aria-label="Explore ${esc(s.name)}"><div class="card-art" style="--art-bg:${esc(s.palette||'#e8e8dc')}"><span class="card-badge">YOU MAY LIKE</span>${styleArtwork(s)}</div><div class="card-content"><div class="card-title-row"><h4>${esc(s.name)}</h4></div><p>${esc(s.desc)}</p><div class="card-foot"><span>${esc(s.texture||'All textures')}</span><strong>View look ↗</strong></div></div></article>`).join('');
+    grid.querySelectorAll('.style-card').forEach(card=>{card.addEventListener('click',()=>setActive(card.dataset.styleId));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setActive(card.dataset.styleId);}});});
+  }
+  function updateDetails(){
+    const s=activeStyle();
+    $('#styleIndex').textContent=`SELECTED STYLE / ${s.rank||'NEW'}`; $('#selectedName').textContent=s.name;
+    $('#selectedDescription').textContent=s.desc;
+    $('#detailTags').innerHTML=`<span class="detail-tag"><strong>Vibe</strong> ${esc(s.vibe||'Defined')}</span><span class="detail-tag"><strong>Effort</strong> ${esc(s.effort||'Medium')}</span><span class="detail-tag"><strong>Works on</strong> ${esc(s.works||s.texture||'Most textures')}</span>`;
+    const specs=[['SIDES',s.sides||'As shown'],['TOP / LENGTH',s.length||'As shown'],['FINISH',s.finish||'Natural'],['STYLE NOTES','Personalize with your barber']];
+    $('#specGrid').innerHTML=specs.map(([l,v])=>`<div class="spec"><label>${esc(l)}</label><strong>${esc(v)}</strong></div>`).join('');
+    $('#barberScript').textContent=`“${s.barber||s.desc}”`;
+    $('#saveBtn').classList.toggle('saved',savedIds.has(s.id)); $('#saveBtn').setAttribute('aria-label',savedIds.has(s.id)?'Remove saved look':'Save look');
+    renderFilters();
+  }
+  const angleCopy={front:['Front view','See the shape and fringe'],side:['Side profile','Check the taper and outline'],back:['Back view','See the neckline and rear shape'], '3d':['3D perspective','Drag to inspect the silhouette']};
+  function updateAngleButtons(){
+    $$('#angleControls button').forEach(b=>b.classList.toggle('active',b.dataset.angle===viewAngle));
+    $('#angleTitle').textContent=angleCopy[viewAngle][0]; $('#angleCaption').textContent=angleCopy[viewAngle][1];
+    const is3d=viewAngle==='3d', s=activeStyle();
+    $('#headCanvas').style.display=is3d?'block':'none';
+    $('#anglePhoto').style.display='none'; $('#photoFallback').style.display='none';
+    $('#modelFileNotice').hidden=true;
+    $('#rotateHint').hidden=!is3d;
+    $('#stageModeLabel').textContent=is3d?'3D model preview':'Reference photo';
+    if(is3d){
+      if(s.modelFile){ $('#modelFileNotice').hidden=false; $('#modelFileNotice').textContent='Admin 3D model attached: '+s.modelFile+' · This prototype records the file but does not render its geometry yet.'; }
+    } else {
+      const photoIndex={front:0,side:1,back:2}[viewAngle] ?? 0;
+      const photo=s.photoData && s.photoData[photoIndex];
+      if(photo){ $('#anglePhoto').src=photo; $('#anglePhoto').alt=s.name+' — '+viewAngle+' view'; $('#anglePhoto').style.display='block'; }
+      else { $('#photoFallback').style.display='flex'; $('#fallbackArt').innerHTML=styleArtwork(s); }
+    }
+  }
+
+  // The image angles are separate reference photos. The canvas is reserved for the 3D preview only.
+  function renderCanvas(){
+    const canvas=$('#headCanvas'); if(!canvas || viewAngle!=='3d') return;
+    const rect=canvas.getBoundingClientRect(); if(!rect.width||!rect.height) return;
+    const dpr=Math.min(window.devicePixelRatio||1,2); canvas.width=Math.floor(rect.width*dpr); canvas.height=Math.floor(rect.height*dpr);
+    const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,rect.width,rect.height);
+    const s=activeStyle(), W=rect.width,H=rect.height, cx=W*.5, cy=H*.52;
+    let targetYaw=viewAngle==='front'?0:viewAngle==='side'?1.12:viewAngle==='back'?Math.PI:viewAngle==='3d'?.45:yaw;
+    if(viewAngle==='3d') targetYaw=yaw===0?.5:yaw;
+    else yaw=targetYaw;
+    const rot=targetYaw + (yaw - targetYaw)*0.0, tilt=pitch+(viewAngle==='3d'?.05:0);
+    const scale=Math.min(W*.45,H*.40);
+    const skinA=s.gender==='women'?'#dca784':'#c9906e', hair=s.hair||'#302c27';
+    const kind=s.kind||'crop';
+    let extra=(kind==='quiff'||kind==='wolf'||kind==='long'||kind==='shag')?.2:kind==='curly'||kind==='waves'?.13:kind==='buzz'?.01:kind==='slick'?.12:.07;
+    let vMin=(kind==='long'||kind==='shag'||kind==='wolf'||kind==='bob')?-.20:(kind==='pixie'?.02:kind==='buzz'?.30:kind==='curly'||kind==='waves'?.1:.16);
+    const point=(x,y,z)=>{
+      const xx=x*Math.cos(rot)+z*Math.sin(rot), zz=-x*Math.sin(rot)+z*Math.cos(rot);
+      const yy=y*Math.cos(tilt)-zz*Math.sin(tilt), z2=y*Math.sin(tilt)+zz*Math.cos(tilt);
+      const persp=4.4/(4.4-z2*.18);
+      return {x:cx+xx*scale*persp, y:cy-yy*scale*persp, z:z2};
+    };
+    const col=(base,amt)=>{
+      let h=base.replace('#',''); if(h.length!==6)return base; let n=parseInt(h,16), r=n>>16,g=(n>>8)&255,b=n&255;
+      r=Math.max(0,Math.min(255,Math.round(r*amt)));g=Math.max(0,Math.min(255,Math.round(g*amt)));b=Math.max(0,Math.min(255,Math.round(b*amt)));return `rgb(${r},${g},${b})`;
+    };
+    let polys=[];
+    function pushPoly(points,color,depth,stroke=null){ polys.push({points,color,depth,stroke}); }
+    function meshSurface(radii, v0, v1, uSeg, vSeg, colorFn, deform=null, capMode=false){
+      const rows=[];
+      for(let j=0;j<=vSeg;j++){
+        const v=v0+(v1-v0)*j/vSeg, row=[];
+        for(let i=0;i<=uSeg;i++){
+          const u=-Math.PI+2*Math.PI*i/uSeg;
+          let x=radii[0]*Math.cos(v)*Math.sin(u), y=radii[1]*Math.sin(v), z=radii[2]*Math.cos(v)*Math.cos(u);
+          if(deform){ const d=deform(u,v); x+=d.x||0; y+=d.y||0; z+=d.z||0; }
+          row.push({x,y,z,u,v});
+        }
+        rows.push(row);
+      }
+      for(let j=0;j<vSeg;j++)for(let i=0;i<uSeg;i++){
+        const ps=[rows[j][i],rows[j][i+1],rows[j+1][i+1],rows[j+1][i]], projected=ps.map(p=>point(p.x,p.y,p.z));
+        const avgz=ps.reduce((a,p)=>a+p.z,0)/ps.length; const avgU=ps.reduce((a,p)=>a+p.u,0)/ps.length, avgV=ps.reduce((a,p)=>a+p.v,0)/ps.length;
+        const light=Math.max(.70,Math.min(1.2,.96+ .22*Math.cos(avgU)*Math.cos(avgV)+.12*Math.sin(avgV)));
+        pushPoly(projected,colorFn(light,avgU,avgV,avgz),avgz);
+      }
+    }
+    // Neck and shoulders, behind the head
+    const neck= [[-.26,-.7,-.18],[.26,-.7,-.18],[.24,-1.32,-.13],[-.24,-1.32,-.13]].map(p=>point(...p)); pushPoly(neck,'#bc8768',-1.2);
+    const shoulders=[[-.66,-1.33,-.17],[-.46,-1.02,-.13],[.46,-1.02,-.13],[.66,-1.33,-.17],[.72,-1.65,-.17],[-.72,-1.65,-.17]].map(p=>point(...p)); pushPoly(shoulders,'#687563',-1.28);
+    meshSurface([.60,.92,.49],-Math.PI/2,Math.PI/2,38,24,(l)=>col(skinA,l),null);
+    // Ears as soft ellipses on each side
+    [-1,1].forEach(sign=>{ const e=[]; for(let i=0;i<14;i++){const a=i*Math.PI*2/14;e.push(point(sign*(.59+.085*Math.cos(a)),.02+.14*Math.sin(a),.03));} pushPoly(e,'#bd8565',.05); });
+    // A rounded cap surface whose dimensions follow the selected hairstyle.
+    const hairBase=hair;
+    const hairDeform=(u,v)=>{
+      let topLift=extra*Math.pow(Math.max(0,Math.sin(v)),3);
+      if(kind==='quiff' && Math.cos(u)>.1) topLift+=.16*Math.cos(u)*Math.pow(Math.max(0,Math.sin(v)),4);
+      let bump=0;
+      if(kind==='curly'||kind==='waves'){ bump=.028*(Math.sin(u*15+v*8)+Math.sin(u*19-v*6))*Math.max(.25,Math.cos(v)); }
+      if(kind==='wolf'||kind==='shag'){ bump=.018*Math.sin(u*12+v*3)*Math.max(.2,Math.cos(v)); }
+      return {x:bump*Math.sin(u),y:topLift+bump*.35,z:bump*Math.cos(u)};
+    };
+    const hairMin=kind==='buzz'?.34:vMin;
+    meshSurface([.64+(kind==='buzz'?.0:.065),.92+extra,.535+(kind==='buzz'?.0:.055)],hairMin,Math.PI/2,40,18,(l,u,v,z)=>{
+      // Sides are a shade darker, approximating a taper/fade without texture images.
+      let side=(Math.abs(Math.sin(u))>.78 && v<.60)? .68:1;
+      let light=l*side; if(kind==='buzz') light*=.82;
+      return col(hairBase,light);
+    },hairDeform,true);
+    // Longer styles get simple hanging locks around the side/back silhouette.
+    if(['long','shag','wolf','bob'].includes(kind)){
+      [-1,1].forEach(sign=>{
+        const lock=[];
+        const lengths=kind==='bob'?.68:kind==='wolf'?.93:1.12;
+        for(let i=0;i<7;i++){const t=i/6;lock.push(point(sign*(.47+.12*Math.sin(t*1.7)),.32-lengths*t,.08+.07*Math.sin(t*2)));}
+        for(let i=6;i>=0;i--){const t=i/6;lock.push(point(sign*(.39+.10*Math.sin(t*1.7)),.32-lengths*t,.17+.04*Math.sin(t*2)));}
+        pushPoly(lock,col(hairBase,.91),.30);
+      });
+    }
+    polys.sort((a,b)=>a.depth-b.depth);
+    polys.forEach(p=>{ctx.beginPath();p.points.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.closePath();ctx.fillStyle=p.color;ctx.fill();if(p.stroke){ctx.strokeStyle=p.stroke;ctx.lineWidth=.6;ctx.stroke();}});
+    // Facial details are shown only when the face is turned towards the viewer.
+    const faceFront=Math.cos(rot);
+    if(faceFront>.05){
+      const eyeVis=faceFront>.65?1:.45;
+      [-.205,.205].forEach((x)=>{
+        const eye=point(x,.19,.47*Math.sqrt(Math.max(.15,1-(x/.60)**2-(.19/.92)**2))+.015);
+        ctx.beginPath();ctx.ellipse(eye.x,eye.y,4*eyeVis,2.3,0,0,Math.PI*2);ctx.fillStyle='#332b26';ctx.fill();
+        const brow=point(x,.255,.48*Math.sqrt(Math.max(.15,1-(x/.60)**2-(.255/.92)**2))+.012);
+        ctx.beginPath();ctx.moveTo(brow.x-5,brow.y);ctx.quadraticCurveTo(brow.x,brow.y-3,brow.x+5,brow.y+1);ctx.strokeStyle=hair;ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();
+      });
+      const noseA=point(0,.105,.49),noseB=point(.015,-.02,.51),noseC=point(.06,-.035,.49);
+      ctx.beginPath();ctx.moveTo(noseA.x,noseA.y);ctx.lineTo(noseB.x,noseB.y);ctx.quadraticCurveTo(noseB.x+2,noseB.y+1,noseC.x,noseC.y);ctx.strokeStyle='#a86d50';ctx.lineWidth=1.5;ctx.lineCap='round';ctx.stroke();
+      const mouthL=point(-.09,-.18,.47), mouthM=point(0,-.20,.49),mouthR=point(.09,-.18,.47);
+      ctx.beginPath();ctx.moveTo(mouthL.x,mouthL.y);ctx.quadraticCurveTo(mouthM.x,mouthM.y+2,mouthR.x,mouthR.y);ctx.strokeStyle='#8c5148';ctx.lineWidth=1.8;ctx.stroke();
+    }
+    // A small hairline/fringe accent reinforces the silhouette for textured cuts.
+    if(['crop','quiff','curly','waves','pixie'].includes(kind) && faceFront>.45){
+      const p1=point(-.39,.54,.40),p2=point(-.22,.46,.49),p3=point(0,.51,.52),p4=point(.19,.45,.49),p5=point(.38,.53,.40);
+      ctx.beginPath();[p1,p2,p3,p4,p5].forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=hair;ctx.lineWidth=kind==='crop'?6:4;ctx.lineCap='round';ctx.stroke();
+    }
+    if(viewAngle==='back' || Math.cos(rot)<-.35){
+      const nape=point(0,-.63,.20); ctx.beginPath();ctx.ellipse(nape.x,nape.y,scale*.17,scale*.07,0,0,Math.PI*2);ctx.fillStyle=col(hair,.80);ctx.fill();
+    }
+  }
+  // Controls and filters
+  // Gender filtering is disabled; this version is men's styles only.
+  $$('#categoryTabs [data-category]').forEach(b=>b.addEventListener('click',()=>{currentCategory=b.dataset.category;renderFilters();renderCards();}));
+  $('#searchInput').addEventListener('input',e=>{query=e.target.value.trim();renderCards();});
+  $('#resetFilters').addEventListener('click',()=>{currentGender='men';currentCategory='all';query='';$('#searchInput').value='';renderFilters();renderCards();toast('Filters cleared');});
+  $$('#angleControls button').forEach(b=>b.addEventListener('click',()=>{viewAngle=b.dataset.angle; if(viewAngle==='front')yaw=0; if(viewAngle==='side')yaw=1.12; if(viewAngle==='back')yaw=Math.PI; if(viewAngle==='3d'&&yaw===0)yaw=.48; updateAngleButtons();renderCanvas();}));
+  $('#rotateReset').addEventListener('click',()=>{yaw=0;pitch=0;viewAngle='front';updateAngleButtons();renderCanvas();});
+  $('#saveBtn').addEventListener('click',()=>{const s=activeStyle();if(savedIds.has(s.id)){savedIds.delete(s.id);toast('Removed from saved looks');}else{savedIds.add(s.id);toast('Look saved for later');}try{localStorage.setItem('forme-saved',JSON.stringify([...savedIds]));}catch(e){}updateDetails();renderCards();});
+  $('#copyNotes').addEventListener('click',async()=>{const s=activeStyle(),text=`${s.name}\nSides: ${s.sides||'As shown'}\nTop/length: ${s.length||'As shown'}\nFinish: ${s.finish||'Natural'}\nMaintenance: ${s.upkeep||'Ask your stylist'}\n\nBarber instructions: ${s.barber||s.desc}`;try{await navigator.clipboard.writeText(text);toast('Barber notes copied');}catch(e){showReference(true);toast('Reference opened — select and copy the notes');}});
+  $('#randomBtn').addEventListener('click',()=>{const list=currentList().filter(s=>s.id!==activeId);const pick=list[Math.floor(Math.random()*Math.max(1,list.length))]||styles[Math.floor(Math.random()*styles.length)];setActive(pick.id);toast(`Try this look: ${pick.name}`);});
+  $('#navExplore').addEventListener('click',()=>{currentGender='men';currentCategory='all';query='';$('#searchInput').value='';renderFilters();renderCards();$('#exploreSection').scrollIntoView({behavior:'smooth'});});
+  $('#navSaved').addEventListener('click',()=>{currentGender='men';currentCategory='all';query='';$('#searchInput').value='';renderFilters();renderCards();$('#libraryTitle').textContent='Your saved looks';const saved=styles.filter(s=>savedIds.has(s.id));$('#styleGrid').innerHTML=saved.map((s,i)=>`<article class="style-card ${s.id===activeId?'active-card':''}" data-style-id="${esc(s.id)}" tabindex="0" role="button"><div class="card-art" style="--art-bg:${esc(s.palette||'#e8e8dc')}"><span class="card-badge">SAVED LOOK</span>${styleArtwork(s)}</div><div class="card-content"><h4>${esc(s.name)}</h4><p>${esc(s.desc)}</p><div class="card-foot"><span>${esc(s.texture||'All textures')}</span><strong>Saved ♥</strong></div></div></article>`).join('');$('#emptyState').hidden=saved.length>0;$('#styleGrid').hidden=saved.length===0;$('#resultMeta').textContent=`${saved.length} saved look${saved.length===1?'':'s'}`;$$('#styleGrid .style-card').forEach(c=>c.addEventListener('click',()=>setActive(c.dataset.styleId)));$('#librarySection').scrollIntoView({behavior:'smooth'});});
+  $('#navHow').addEventListener('click',()=>{toast('Pick a cut → compare angles → copy the barber notes.');$('#detailCard').scrollIntoView({behavior:'smooth',block:'center'});});
+  function openModal(id){$('#'+id).classList.add('open');document.body.style.overflow='hidden';}
+  function closeModal(id){$('#'+id).classList.remove('open');document.body.style.overflow='';}
+  $('#adminOpen').addEventListener('click',()=>openModal('adminModal')); $('#adminClose').addEventListener('click',()=>closeModal('adminModal')); $('#cancelUpload').addEventListener('click',()=>closeModal('adminModal')); $('#barberClose').addEventListener('click',()=>closeModal('barberModal'));
+  $$('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape') $$('.modal-backdrop.open').forEach(m=>closeModal(m.id));if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#searchInput').focus();}});
+  async function optimizePhoto(file){
+    if(file.size>12*1024*1024) throw new Error(`${file.name} is larger than 12 MB`);
+    return new Promise((resolve,reject)=>{
+      const url=URL.createObjectURL(file), img=new Image();
+      img.onload=()=>{const max=960,scale=Math.min(1,max/Math.max(img.width,img.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const c=canvas.getContext('2d');c.fillStyle='#ffffff';c.fillRect(0,0,canvas.width,canvas.height);c.drawImage(img,0,0,canvas.width,canvas.height);URL.revokeObjectURL(url);resolve(canvas.toDataURL('image/jpeg',.72));};
+      img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error(`Could not read ${file.name}`));};img.src=url;
+    });
+  }
+  $('#formPhotos').addEventListener('change',async e=>{
+    uploadedPhotos=[...e.target.files].slice(0,3);uploadedPhotoData=[];
+    $('#photoList').textContent=uploadedPhotos.length?`Preparing ${uploadedPhotos.length} image(s)…`:'No photos selected';
+    if(e.target.files.length>3)toast('Only the first 3 images will be used: front, side, back');
+    try{uploadedPhotoData=await Promise.all(uploadedPhotos.map(optimizePhoto));$('#photoList').textContent=uploadedPhotos.map((f,i)=>`${['Front','Side','Back'][i]}: ${f.name}`).join(' · ');}catch(err){uploadedPhotoData=[];$('#photoList').textContent='Image could not be optimized. Try smaller image files.';toast(err.message||'Could not load images');}
+  });
+  $('#formModel').addEventListener('change',e=>{uploadedModel=e.target.files[0]||null;$('#modelList').textContent=uploadedModel?`${uploadedModel.name} · ${(uploadedModel.size/1024/1024).toFixed(2)} MB`:'No model selected';});
+  $('#styleForm').addEventListener('submit',e=>{
+    e.preventDefault();const fd=new FormData(e.currentTarget);const name=String(fd.get('name')||'').trim();if(!name)return;
+    const id='custom-'+Date.now().toString(36);const style={id,name,gender:'men',category:String(fd.get('category')||'texture'),texture:String(fd.get('texture')||'All textures'),sides:String(fd.get('sides')||'As shown'),length:String(fd.get('length')||'As shown'),finish:String(fd.get('finish')||'Natural finish'),upkeep:String(fd.get('upkeep')||'Ask your stylist'),desc:String(fd.get('description')||''),barber:String(fd.get('barber')||''),vibe:'Your style',effort:'Ask your stylist',works:String(fd.get('texture')||'Most textures'),palette:'#e2e7d9',hair:'#302c27',kind:'crop',badge:'JUST ADDED',rank:'NEW',photoNames:uploadedPhotos.map(f=>f.name),photoData:uploadedPhotoData,modelFile:uploadedModel?uploadedModel.name:null};
+    styles.push(style);try{const custom=JSON.parse(localStorage.getItem(customStylesKey)||'[]');custom.push(style);localStorage.setItem(customStylesKey,JSON.stringify(custom));}catch(err){toast('Added for this session; browser storage is full');}
+    closeModal('adminModal');e.currentTarget.reset();uploadedPhotos=[];uploadedPhotoData=[];uploadedModel=null;$('#photoList').textContent='No photos selected';$('#modelList').textContent='No model selected';currentGender='men';currentCategory='all';query='';$('#searchInput').value='';setActive(id);renderFilters();renderCards();updateAngleButtons();renderCanvas();$('#librarySection').scrollIntoView({behavior:'smooth'});toast('Style added to the library');
+  });
+  function showReference(copyFallback=false){const s=activeStyle();$('#barberReferenceContent').innerHTML=`<div style="display:grid;grid-template-columns:120px 1fr;gap:17px;align-items:start"><div style="border-radius:13px;overflow:hidden;background:${esc(s.palette||'#e3e6db')}">${styleArtwork(s)}</div><div><div class="eyebrow" style="margin-bottom:7px">FORME · STYLE CARD</div><h2 style="font-size:27px;margin:0 0 8px">${esc(s.name)}</h2><p style="font-size:11px;line-height:1.6;color:var(--muted);margin:0">${esc(s.desc)}</p><div class="detail-tags" style="margin-top:12px;margin-bottom:0"><span class="detail-tag"><strong>Sides</strong> ${esc(s.sides||'As shown')}</span><span class="detail-tag"><strong>Length</strong> ${esc(s.length||'As shown')}</span><span class="detail-tag"><strong>Finish</strong> ${esc(s.finish||'Natural')}</span></div></div></div><div style="height:1px;background:var(--line);margin:20px 0"></div><div class="detail-section-title">Tell your barber</div><div style="background:var(--surface-2);border-radius:13px;padding:16px;font-size:13px;line-height:1.75;color:var(--ink)" id="referenceScript">${esc(s.barber||s.desc)}</div><p style="color:var(--muted);font-size:10px;line-height:1.6;margin:13px 0 0">Use this as a starting point. Ask your barber to adjust the cut for your hair growth, density and face shape.</p><div class="modal-foot"><div class="demo-notice">Uploaded photos are kept with this style in this browser. Uploaded 3D geometry is not rendered in this prototype.</div><div style="display:flex;gap:8px"><button class="outline-btn" id="referenceDownload">Download brief</button><button class="solid-btn" id="referenceCopy">Copy brief ↗</button></div></div>`;
+    openModal('barberModal');
+    $('#referenceCopy').onclick=async()=>{const text=`FORME BARBER REFERENCE\n${s.name}\n\n${s.desc}\n\nSides: ${s.sides||'As shown'}\nTop/length: ${s.length||'As shown'}\nFinish: ${s.finish||'Natural'}\nMaintenance: ${s.upkeep||'Ask your stylist'}\n\nBARBER INSTRUCTIONS\n${s.barber||s.desc}`;try{await navigator.clipboard.writeText(text);toast('Barber brief copied');}catch(e){toast('Copy blocked by browser — use Download brief');}};
+    $('#referenceDownload').onclick=()=>{const text=`FORME BARBER REFERENCE\n${s.name}\n\n${s.desc}\n\nSides: ${s.sides||'As shown'}\nTop/length: ${s.length||'As shown'}\nFinish: ${s.finish||'Natural'}\nMaintenance: ${s.upkeep||'Ask your stylist'}\n\nBARBER INSTRUCTIONS\n${s.barber||s.desc}`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));a.download=`forme-${s.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}-barber-brief.txt`;a.click();URL.revokeObjectURL(a.href);toast('Barber brief downloaded');};
+  }
+  function showPhotoGallery(){
+    const s=activeStyle();
+    if(!s.photoData||!s.photoData.length){toast('No uploaded photos for this style yet');return;}
+    const labels=['Front view','Side view','Back view','Angle 4','Angle 5','Angle 6'];
+    $('#barberReferenceContent').innerHTML=`<div class="eyebrow" style="margin-bottom:12px"><span class="dot"></span> Reference photos · ${s.photoData.length} image(s)</div><h2 style="font-size:27px;margin-bottom:18px">${esc(s.name)}</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">${s.photoData.map((src,i)=>`<div style="min-width:0"><div style="height:190px;border-radius:12px;overflow:hidden;background:var(--surface-2)"><img src="${esc(src)}" alt="${esc(labels[i])}" style="width:100%;height:100%;object-fit:cover" /></div><div style="font-size:10px;color:var(--muted);padding-top:7px">${esc(labels[i])}${s.photoNames&&s.photoNames[i]?` · ${esc(s.photoNames[i])}`:''}</div></div>`).join('')}</div>${s.modelFile?`<div style="margin-top:18px;padding:13px;border-radius:12px;background:var(--surface-2);font-size:11px"><strong>3D file attached:</strong> ${esc(s.modelFile)}<div style="color:var(--muted);margin-top:5px">This preview records the uploaded model filename; it does not yet render the uploaded geometry.</div></div>`:''}`;
+    openModal('barberModal');
+  }
+  $('#viewPhotos').addEventListener('click',showPhotoGallery);
+  // Pointer-driven rotation: angle buttons remain a convenient accessible fallback.
+  const canvas=$('#headCanvas');let dragging=false,lastX=0,lastY=0;
+  canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId);if(viewAngle!=='3d'){viewAngle='3d';updateAngleButtons();}});
+  canvas.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;yaw+=dx*.012; pitch=Math.max(-.32,Math.min(.32,pitch+dy*.006));viewAngle='3d';updateAngleButtons();renderCanvas();});
+  canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);
+  let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(renderCanvas,80);});
+  // Initial composition
+  renderFilters();updateDetails();updateAngleButtons();renderCards();renderSimilar();requestAnimationFrame(renderCanvas);
+})();
+</script>
+</body>
+</html>
